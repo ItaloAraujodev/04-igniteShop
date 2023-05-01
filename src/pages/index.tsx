@@ -1,12 +1,17 @@
+import { styled } from './styles'
 import { Inter } from 'next/font/google'
 
-
 const inter = Inter({ subsets: ['latin'] })
+
+const Button = styled('button', {
+  backgroundColor: '$rocketseat'
+})
+
 
 export default function Home() {
   return (
     <div>
-      <h1>Hello world</h1>
+      <Button>Hello world</Button>
     </div>
   )
 }
