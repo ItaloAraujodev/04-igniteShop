@@ -1,16 +1,11 @@
-import { styled } from "./styles";
 import { Inter } from "next/font/google";
+import { stripe } from "./lib/stripe";
+import { GetStaticProps } from "next";
+import Stripe from "stripe";import Image from "next/image";
 import { HomeContainer, Product } from "./styles/pages/home";
-import Image from "next/image";
 
 const inter = Inter({ subsets: ["latin"] });
 
-import camiseta1 from "../pages/assents/Camisetas/1.png";
-import camiseta2 from "../pages/assents/Camisetas/2.png";
-import camiseta3 from "../pages/assents/Camisetas/3.png";
-import { stripe } from "./lib/stripe";
-import { GetServerSideProps } from "next";
-import Stripe from "stripe";
 
 interface HomeProps {
   products: {
@@ -27,7 +22,7 @@ export default function Home({ products }: HomeProps) {
       {products.map((product) => {
         return (
           <Product key={product.id}>
-            <Image src={product.imageUrl} width={520} height={480} alt="" />
+            <Image src={product.imageUrl} width={520} height={480} alt={product.name} />
             <footer>
               <strong>{product.name}</strong>
               <span>{product.price}</span>
@@ -39,7 +34,10 @@ export default function Home({ products }: HomeProps) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async () => {
+// getServerSideProps: O site só carrega se tiver isso. Roda a cada requisição feita, (req, res ...)
+// getStaticProps: Mesma coisa do de cima, mas em produção. Não roda a cada requisição feita
+
+export const getStaticProps: GetStaticProps = async () => {
   const response = await stripe.products.list({
     expand: ["data.default_price"],
     active: true,
@@ -60,5 +58,6 @@ export const getServerSideProps: GetServerSideProps = async () => {
     props: {
       products,
     },
+    revalidate: 60 * 60 * 2,
   };
 };
