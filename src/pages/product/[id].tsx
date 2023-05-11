@@ -2,7 +2,6 @@ import { useRouter } from "next/router";
 import { stripe } from "../lib/stripe";
 import Image from "next/image";
 
-
 import {
   ImageContainer,
   ProductContainer,
@@ -11,32 +10,32 @@ import {
 import { GetStaticPaths, GetStaticProps } from "next";
 import Stripe from "stripe";
 
-
 interface IProductProps {
-  products: {
+  product: {
     id: string;
     name: string;
     imageUrl: string;
     price: string;
-    description: string
+    description: string;
   };
 }
 
-
-export default function product({ products }: IProductProps) {
-
+export default function product({ product }: IProductProps) {
   return (
     <ProductContainer>
       <ImageContainer>
-        <Image src={products.imageUrl} width={520} height={480} alt={products.name} />
+        <Image
+          src={product.imageUrl}
+          width={520}
+          height={480}
+          alt=""
+        />
       </ImageContainer>
 
       <ProductDetails>
-        <h1>{products.name}</h1>
-        <span>{products.price}</span>
-        <p>
-          {products.description}
-        </p>
+        <h1>{product.name}</h1>
+        <span>{product.price}</span>
+        <p>{product.description}</p>
         <button>Comprar agora</button>
       </ProductDetails>
     </ProductContainer>
@@ -46,32 +45,39 @@ export default function product({ products }: IProductProps) {
 export const getStaticPaths: GetStaticPaths = async () => {
   return {
     paths: [
-      { params: {  }  }
+      /* { params: { id: 'prod_Nq5dCWdyb4bbCs' }  } */
     ],
-    fallback: false,
-  }
-}
+    // False: Vai da 404 se n passar o ID dos produtos em params
+    // True: Vai tentar pegar o ID em params e vai tentar executar o method de baixo para gerar a versão static, mas tem um porém tem que esperar o method de baixo e dps vai executar o html, por esse motivo tem que esperar, fazer um loader
+    // Pegar o loader. { isFallback } = userRouter
+    fallback: true,
+  };
+};
 
-export const getStaticProps: GetStaticProps<any, { id: string }> = async ({ params }) => {
-  const productId = params!.id
+export const getStaticProps: GetStaticProps<any, { id: string }> = async ({
+  params,
+}) => {
+  const productId = params!.id;
 
   const product = await stripe.products.retrieve(productId, {
-    expand: ['default_price']
-  })
+    expand: ["default_price"],
+  });
 
-    const price = product.default_price as Stripe.Price;
+  const price = product.default_price as Stripe.Price;
 
   return {
     props: {
-      id: product.id,
-      name: product.name,
-      imageUrl: product.images[0],
-      price: new Intl.NumberFormat("pt-BR", {
-        style: "currency",
-        currency: "BRL",
-      }).format(price.unit_amount! / 100),
-      description: product.description
+      product: {
+        id: product.id,
+        name: product.name,
+        imageUrl: product.images[0],
+        price: new Intl.NumberFormat("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        }).format(price.unit_amount! / 100),
+        description: product.description,
+      },
     },
     revalidate: 60 * 60 * 1, // 1hours
-  }
-}
+  };
+};
