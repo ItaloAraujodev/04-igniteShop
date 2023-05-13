@@ -1,4 +1,5 @@
-import { useRouter } from "next/router";
+"use client";
+import axios from "axios";
 import { stripe } from "../lib/stripe";
 import Image from "next/image";
 
@@ -9,6 +10,7 @@ import {
 } from "../styles/pages/product";
 import { GetStaticPaths, GetStaticProps } from "next";
 import Stripe from "stripe";
+import { useState } from "react";
 
 interface IProductProps {
   product: {
@@ -22,9 +24,26 @@ interface IProductProps {
 }
 
 export default function product({ product }: IProductProps) {
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [isLoading, setIsloading] = useState<boolean>(false)
   
-  function handleBuyProduct(){
-    console.log(product.defaultPriceId)
+  async function handleBuyProduct(){
+    try {
+      setIsloading(true)
+      const response = await axios.post('/api/checkout', {
+        priceId: product.defaultPriceId,
+      })
+      // Para enviar para uma rota interna, usa o useRouter. router.push('/checkout')
+      // Para enviar para uma rota externa, usa o window.location.href = checkoutUrl
+      const { checkoutUrl } = response.data
+      window.location.href = checkoutUrl
+
+    } catch (err) {
+      setIsloading(false)
+      // Conectar com uma ferramenta de observabilidade (Datadog / sentry)
+      alert('Falha ao redirecionar')
+    }
   }
   
   
@@ -43,7 +62,7 @@ export default function product({ product }: IProductProps) {
         <h1>{product.name}</h1>
         <span>{product.price}</span>
         <p>{product.description}</p>
-        <button onClick={handleBuyProduct}>Comprar agora</button>
+        <button disabled={isLoading} onClick={handleBuyProduct}>Comprar agora</button>
       </ProductDetails>
     </ProductContainer>
   );
