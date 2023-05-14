@@ -5,6 +5,8 @@ import Stripe from "stripe";
 import Image from "next/image";
 import { HomeContainer, Product } from "./styles/pages/home";
 import Link from "next/link";
+import { useKeenSlider } from 'keen-slider/react'
+import 'keen-slider/keen-slider.min.css'
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,12 +20,20 @@ interface HomeProps {
 }
 
 export default function Home({ products }: HomeProps) {
+
+  const [sliderRef] = useKeenSlider({
+    slides: {
+      perView: 3,
+      spacing: 48,
+    }
+  })
+
   return (
-    <HomeContainer>
+    <HomeContainer ref={sliderRef} className="keen-slider">
       {products.map((product) => {
         return (
           <Link key={product.id} href={`/product/${product.id}`} >
-            <Product>
+            <Product className="keen-slider__slide">
               <Image
                 src={product.imageUrl}
                 width={520}

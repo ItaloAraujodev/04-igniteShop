@@ -2,7 +2,6 @@
 import axios from "axios";
 import { stripe } from "../lib/stripe";
 import Image from "next/image";
-
 import {
   ImageContainer,
   ProductContainer,
