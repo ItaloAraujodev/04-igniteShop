@@ -10,6 +10,7 @@ import {
 import { GetStaticPaths, GetStaticProps } from "next";
 import Stripe from "stripe";
 import { useState } from "react";
+import Head from "next/head";
 
 interface IProductProps {
   product: {
@@ -47,7 +48,11 @@ export default function product({ product }: IProductProps) {
   
   
   return (
-    <ProductContainer>
+    <>
+    <Head>
+      <title>{product.name} - Ignite Shop</title>
+    </Head>
+      <ProductContainer>
       <ImageContainer>
         <Image
           src={product.imageUrl}
@@ -64,6 +69,7 @@ export default function product({ product }: IProductProps) {
         <button disabled={isLoading} onClick={handleBuyProduct}>Comprar agora</button>
       </ProductDetails>
     </ProductContainer>
+    </>
   );
 }
 

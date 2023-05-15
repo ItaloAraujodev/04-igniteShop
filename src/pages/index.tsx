@@ -7,6 +7,7 @@ import { HomeContainer, Product } from "./styles/pages/home";
 import Link from "next/link";
 import { useKeenSlider } from 'keen-slider/react'
 import 'keen-slider/keen-slider.min.css'
+import Head from "next/head";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,7 +30,11 @@ export default function Home({ products }: HomeProps) {
   })
 
   return (
-    <HomeContainer ref={sliderRef} className="keen-slider">
+    <>
+    <Head>
+      <title>Home | Ignite Store</title>
+    </Head>
+      <HomeContainer ref={sliderRef} className="keen-slider">
       {products.map((product) => {
         return (
           <Link key={product.id} href={`/product/${product.id}`} >
@@ -49,6 +54,8 @@ export default function Home({ products }: HomeProps) {
         );
       })}
     </HomeContainer>
+    
+    </>
   );
 }
 
